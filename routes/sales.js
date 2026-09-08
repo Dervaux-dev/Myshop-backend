@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Sale = require('../models/Sale');
+const Sale = require('../models/sale');
 const { processSale, syncBulkSales } = require('../controller/saleController');
 const { auth, adminOnly } = require('../middleware/auth');
 

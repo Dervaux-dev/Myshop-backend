@@ -1,5 +1,5 @@
-const Sale = require('../models/Sale');
-const Product = require('../models/Product');
+const Sale = require('../models/sale');
+const Product = require('../models/product');
 
 // Sanitize a raw items array: coerce string numbers (from a mobile SQLite DB)
 // so they don't cause a mongoose CastError, and drop items without a name.
