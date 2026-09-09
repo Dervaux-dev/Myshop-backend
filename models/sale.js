@@ -31,6 +31,11 @@ const saleSchema = new mongoose.Schema({
     type: String, 
     enum: ['mobile', 'web'], 
     default: 'mobile' 
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'synced'],
+    default: 'pending'
   }
 });
 

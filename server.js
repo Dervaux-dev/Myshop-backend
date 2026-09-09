@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -17,10 +16,8 @@ const app = express();
 app.set('trust proxy', 1); // be correct behind a reverse proxy (Render/Railway/nginx)
 
 // Hide framework fingerprint and add sane security headers.
-// CSP is disabled so the Expo web-build (js bundle + sqlite wasm worker)
-// keeps working; the other helmet headers stay on.
 app.disable('x-powered-by');
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(helmet());
 
 // Fail fast if critical secrets are missing — never run insecure.
 if (!process.env.MONGO_URI) {
@@ -87,10 +84,6 @@ const loginLimiter = rateLimit({
 });
 app.use('/api/users/login', loginLimiter);
 
-// Serve static files from the Expo web build
-const webBuildPath = path.join(__dirname, '..', 'frontend', 'web-build');
-app.use(express.static(webBuildPath));
-
 // Connect to MongoDB Atlas
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
@@ -111,13 +104,6 @@ app.get('/api/health', (req, res) => res.json({ success: true, status: 'ok' }));
 app.use('/api/products', require('./routes/productRoutes'));
 app.use('/api/sales', require('./routes/sales'));
 app.use('/api/users', require('./routes/userRoutes'));
-
-// Fallback: serve index.html for any non-API route (SPA client-side routing)
-// Express 5 no longer accepts '*' — use app.use middleware.
-app.use((req, res, next) => {
-  if (req.path.startsWith('/api/')) return next();
-  res.sendFile(path.join(webBuildPath, 'index.html'));
-});
 
 const PORT = process.env.PORT || 5000;
 // Cloud hosts (Render/Railway) require the server to bind to 0.0.0.0.
